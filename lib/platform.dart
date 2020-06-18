@@ -1,38 +1,59 @@
-
+import 'dart:collection';
 import 'dart:ui';
 
-import 'package:flame/anchor.dart';
-import 'package:flame/components/component.dart';
+import 'package:FlutterJump/utils/colors.dart';
 import 'package:flame/position.dart';
 
 import 'player.dart';
 import 'utils/debug.dart';
+import 'world.dart';
 
-class Platform extends PositionComponent {
+extension WorldPlatforms on World {
+  void createPlatform(Position position, [PlatformPrototype prototype = null]) {
+    var proto = (prototype == null) ? PlatformPrototype.DEFAULT : prototype;
+    var platform = PlatformInstance(proto, position);
+    platforms.add(platform);
+  }
+
+  void renderPlatforms(Canvas canvas) {
+    platforms.forEach((instance) {
+      var position = localPosition2GlobalPosition(instance.position);
+      instance.prototype.render(canvas, position, this.localX2Global);
+    });
+  }
+}
+
+class PlatformInstance {
+  final PlatformPrototype prototype;
+  Position position;
+
+  PlatformInstance(this.prototype, this.position);
+}
+
+class PlatformPrototype {
   static final _color = Paint()..color = Color(0xFF00FF00);
-  static const _width = 50.0;
-  static const _height = 10.0;
+  static const _width = 0.1; // 1/10th of the screen width
+  static const _height = 4.0;
 
-  Platform(Position position) {
-    anchor = Anchor.topCenter;
-    this.width = _width;
-    this.height = _height;
-    this.x = position.x;
-    this.y = position.y;
+  static final DEFAULT = PlatformPrototype();
+
+  final double width;
+  final double height;
+
+  PlatformPrototype([this.width = _width, this.height = _height]);
+
+  void render(Canvas canvas, Position position,
+      double Function(double) local2GlobalWidth) {
+    var width = local2GlobalWidth(this.width);
+    var rect = Rect.fromCenter(
+      center: Offset(position.x, position.y + height / 2),
+      width: width,
+      height: height,
+    );
+    canvas.drawRect(rect, _color);
+    canvas.drawDebugPoint(position, PAINT_RED);
+    canvas.drawDebugHLine(position, width, PAINT_RED);
   }
 
-  @override
-  void resize(Size size) {
-    width = _width / size.width;
-  }
-
-  @override
-  void render(Canvas canvas) {
-    canvas.drawRect(toRect(), _color);
-    drawDebug(canvas);
-  }
-
-  void onPlayerCollided(Player player) {
-    
-  }
+  void onPlayerCollided(Player player) {}
 }

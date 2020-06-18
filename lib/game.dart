@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/gestures.dart';
@@ -7,8 +5,6 @@ import 'package:flutter/cupertino.dart';
 
 import 'world.dart';
 import 'utils/debug.dart';
-
-double APP_WIDTH = 0.0;
 
 class FlutterJumpGame extends BaseGame with HorizontalDragDetector {
   @override
@@ -27,21 +23,12 @@ class FlutterJumpGame extends BaseGame with HorizontalDragDetector {
   }
 
   @override
-  void render(Canvas canvas) {
-    canvas.scale(size.width, 1);
-    super.render(canvas);
-  }
-
-  @override
-  void resize(Size size) {
-    APP_WIDTH = size.width;
-    super.resize(size);
+  void onHorizontalDragStart(DragStartDetails details) {
+    _world.onPlayerControl(details.localPosition);
   }
 
   @override
   void onHorizontalDragUpdate(DragUpdateDetails details) {
-    var horizontalPos = details.localPosition.dx / size.width;
-    print("horizontal drag update $horizontalPos");
-    _world.player.x = horizontalPos;
+    _world.onPlayerControl(details.localPosition);
   }
 }

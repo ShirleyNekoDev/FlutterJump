@@ -11,30 +11,26 @@ import 'platform.dart';
 class World extends Component {
   final FlutterJumpGame _game;
 
-  final double gravity = 200.0; // px/s²
+  final double gravity = -200.0; // px/s²
   
-  // camera cutoff
-  double yPosition = 0.0;
+  /// camera cutoff over ground (0)
+  /// e.g. lower end of world = out of screen
+  double yCamCutoff = 0.0;
   Player player;
-  // Important: platforms are ordered by y coordinate with the highest y (lowest on screen) being first!
-  Queue<Platform> platforms = Queue();
+  /// Important: platforms are ordered by y coordinate with the highest y (lowest on screen) being first!
+  Queue<PlatformInstance> platforms = Queue();
 
   World(this._game) {
     print("New world");
     player = Player(this);
     _game.addLater(player);
-    addPlatform(Position(0.5, 160));
-  }
-
-  void addPlatform(Position position) {
-    var platform = Platform(position);
-    platforms.add(platform);
-    _game.addLater(platform);
+    createPlatform(Position(0.5, 20));
   }
 
   @override
   void render(Canvas canvas) {
     // TODO: background
+    renderPlatforms(canvas);
   }
 
   @override
@@ -42,13 +38,29 @@ class World extends Component {
     // TODO: generate platforms
   }
 
-  // Rect localToGlobalRect(Rect rect) {
-  //   return Rect.fromCenter(
-  //     Offset()
-  //   )
-  // }
+  // local to global coordinate conversion
+  // x: 0 - 1 => 0 - width
+  // y: 0 (bottom ground) - height => camera position
+  double localX2Global(double x) => x * _game.size.width;
+  double localY2Global(double y) => _game.size.height - (y - yCamCutoff);
+  Position local2GlobalPosition(double x, double y) => Position(
+    localX2Global(x),
+    localY2Global(y)
+  );
+  Position localPosition2GlobalPosition(Position position) => Position(
+    localX2Global(position.x),
+    localY2Global(position.y)
+  );
+  
+  // global to local coordinate conversion
+  double globalX2local(double x) => x / _game.size.width;
 
-  bool isInDeathZone(double y) => y < yPosition;
+  void onPlayerControl(Offset globalPosition) {
+    player.x = globalX2local(globalPosition.dx);
+  }
+
+  /// out of screen (lower end of world)
+  bool isInDeathZone(double y) => y < yCamCutoff;
 
   CollisionAndFallDistance calculatePlayerCollisionsAndFallDistance(double playerYSpeed) {
     // var it = obj.iterator;

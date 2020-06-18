@@ -1,38 +1,49 @@
 import 'dart:ui';
 
-import 'package:flame/anchor.dart';
+import 'package:FlutterJump/utils/colors.dart';
 import 'package:flame/components/component.dart';
+import 'package:flame/position.dart';
 
 import 'utils/debug.dart';
 import 'world.dart';
 
 class Player extends PositionComponent {
   static final _color = Paint()..color = Color(0xFFFFAA00);
-  static const _size = 40.0;
+  static const _size = 0.1; // 1/10th of the screen width
 
   final World _world;
 
   bool alive = true;
   double ySpeed = 0.0;
 
-  Player(this._world) {
-    anchor = Anchor.bottomCenter;
+  Player(this._world, [double yPos = 80]) {
     width = _size;
     height = _size;
-    y = 80;
+    y = yPos;
     x = 0.5;
   }
 
   @override
   void resize(Size size) {
-    width = _size / size.width;
+    height = _size * size.width;
   }
 
   @override
   void render(Canvas canvas) {
     canvas.drawRect(toRect(), _color);
-    drawDebug(canvas);
+    drawDebug(canvas, PAINT_RED);
   }
+
+  @override
+  Position toPosition() => _world.local2GlobalPosition(x, y);
+
+  @override
+  Rect toRect() => Rect.fromLTWH(
+        _world.localX2Global(x - width / 2),
+        _world.localY2Global(y + height),
+        _world.localX2Global(width),
+        height,
+      );
 
   @override
   void update(double deltaTime) {
