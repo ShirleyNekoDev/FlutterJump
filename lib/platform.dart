@@ -21,6 +21,30 @@ extension WorldPlatforms on World {
       instance.prototype.render(canvas, position, this.localX2Global);
     });
   }
+
+  CollisionAndFallDistance calculatePlayerCollisionsAndFallDistance(
+      double playerDownSpeed) {
+    var it = platforms.iterator;
+    while (it.moveNext()) {
+      var platform = it.current;
+      if(!platform.isHOverlapping(player)) continue;
+
+      double distance = platform.distanceTo(player);
+      if (distance - playerDownSpeed <= 0) {
+        return CollisionAndFallDistance(distance, platform);
+      }
+    }
+    return CollisionAndFallDistance(playerDownSpeed);
+  }
+}
+
+class CollisionAndFallDistance {
+  final PlatformInstance collidedPlatform;
+  final double fallDistance;
+
+  CollisionAndFallDistance(this.fallDistance, [this.collidedPlatform = null]);
+
+  bool hasCollision() => collidedPlatform != null;
 }
 
 class PlatformInstance {
@@ -28,6 +52,11 @@ class PlatformInstance {
   Position position;
 
   PlatformInstance(this.prototype, this.position);
+
+  double distanceTo(Player player) => player.y - position.y;
+
+  bool isHOverlapping(Player player) =>
+    player.x <= position.x + prototype.width && player.x + player.width >= position.x;
 }
 
 class PlatformPrototype {

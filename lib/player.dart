@@ -6,15 +6,17 @@ import 'package:flame/position.dart';
 
 import 'utils/debug.dart';
 import 'world.dart';
+import 'platform.dart';
 
 class Player extends PositionComponent {
   static final _color = Paint()..color = Color(0xFFFFAA00);
   static const _size = 0.1; // 1/10th of the screen width
+  static const _jumpSpeed = 200.0;
 
   final World _world;
 
   bool alive = true;
-  double ySpeed = 0.0;
+  double ySpeed = _jumpSpeed;
 
   Player(this._world, [double yPos = 80]) {
     width = _size;
@@ -55,8 +57,20 @@ class Player extends PositionComponent {
 
   void move(double deltaTime) {
     ySpeed += deltaTime * _world.gravity;
-    y += deltaTime * ySpeed;
-    _world.calculatePlayerCollisionsAndFallDistance(deltaTime * ySpeed);
+    if (ySpeed < 0) {
+      var collision =
+          _world.calculatePlayerCollisionsAndFallDistance(deltaTime * -ySpeed);
+      y -= collision.fallDistance;
+      if (collision.hasCollision()) {
+        jump();
+      }
+    } else {
+      y += deltaTime * ySpeed;
+    }
+  }
+
+  void jump() {
+    ySpeed = _jumpSpeed;
   }
 
   void deathCheck() {

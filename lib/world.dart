@@ -17,14 +17,16 @@ class World extends Component {
   /// e.g. lower end of world = out of screen
   double yCamCutoff = 0.0;
   Player player;
-  /// Important: platforms are ordered by y coordinate with the highest y (lowest on screen) being first!
+  /// Important: platforms are ordered by y coordinate with the lowest y being first!
   Queue<PlatformInstance> platforms = Queue();
 
   World(this._game) {
     print("New world");
     player = Player(this);
     _game.addLater(player);
-    createPlatform(Position(0.5, 20));
+    createPlatform(Position(0.48, 20));
+    createPlatform(Position(0.65, 60));
+    createPlatform(Position(0.43, 100));
   }
 
   @override
@@ -61,16 +63,4 @@ class World extends Component {
 
   /// out of screen (lower end of world)
   bool isInDeathZone(double y) => y < yCamCutoff;
-
-  CollisionAndFallDistance calculatePlayerCollisionsAndFallDistance(double playerYSpeed) {
-    // var it = obj.iterator;
-    // while (it.moveNext()) {
-    //   use(it.current);
-    // }
-    return CollisionAndFallDistance();
-  }
-}
-
-class CollisionAndFallDistance {
-
 }
