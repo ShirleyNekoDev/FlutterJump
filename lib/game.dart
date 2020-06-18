@@ -1,23 +1,29 @@
 import 'dart:ui';
 
+import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/gestures.dart';
 import 'package:flutter/cupertino.dart';
 
-import 'platform.dart';
 import 'world.dart';
+import 'utils/debug.dart';
+
+double APP_WIDTH = 0.0;
 
 class FlutterJumpGame extends BaseGame with HorizontalDragDetector {
   @override
-  bool debugMode() => true;
+  bool debugMode() => DEBUG_MODE;
 
   World _world;
 
-  List<Platform> _platforms = List();
+  void initialize() async {
+    resize(await Flame.util.initialDimensions());
+  }
 
   FlutterJumpGame() {
+    initialize();
     this._world = World(this);
-    add(_world);
+    addLater(_world);
   }
 
   @override
@@ -27,27 +33,15 @@ class FlutterJumpGame extends BaseGame with HorizontalDragDetector {
   }
 
   @override
-  void onHorizontalDragStart(DragStartDetails details) {
-    print("horizontal drag start ${details.localPosition}");
+  void resize(Size size) {
+    APP_WIDTH = size.width;
+    super.resize(size);
   }
+
   @override
   void onHorizontalDragUpdate(DragUpdateDetails details) {
     var horizontalPos = details.localPosition.dx / size.width;
     print("horizontal drag update $horizontalPos");
     _world.player.x = horizontalPos;
   }
-
-  // @override
-  // void onPanDown(DragDownDetails details) {
-  //   print("pan down ${details.localPosition}");
-  // }
-  // @override
-  // void onPanStart(DragStartDetails details) {
-  //   print("pan start ${details.localPosition}");
-  // }
-  // @override
-  // void onPanUpdate(DragUpdateDetails details) {
-  //   print("pan update ${details.localPosition}");
-  //   print("pan update ${details.primaryDelta}");
-  // }
 }
