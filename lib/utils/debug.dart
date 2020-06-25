@@ -28,8 +28,8 @@ extension CanvasDrawDebugPosition on Canvas {
 
   void drawDebugHLine(Position position, double width, Paint paint) {
     if (!DEBUG_MODE) return;
-    var pointL = position.toOffset().translate(-width / 2, 0);
-    var pointR = position.toOffset().translate(width / 2, 0);
+    final pointL = position.toOffset().translate(-width / 2, 0);
+    final pointR = position.toOffset().translate(width / 2, 0);
     drawLine(pointL, pointR, paint);
     drawLine(pointL.translate(0, -3), pointL.translate(0, 3), paint);
     drawLine(pointR.translate(0, -3), pointR.translate(0, 3), paint);

@@ -6,7 +6,7 @@ extension WorldPlatformCollision on World {
 
   CollisionAndFallDistance calculatePlayerCollisionsAndFallDistance(
       double playerDownSpeed) {
-    var possibleCollisionStack = List();
+    final possibleCollisionStack = List();
 
     // find possible colliding platforms from lowest platform upwards stopping at players y position
     for(final platform in platforms) {
@@ -19,7 +19,7 @@ extension WorldPlatformCollision on World {
 
     // check for first collision from highest platform to lowest
     for(final platform in possibleCollisionStack.reversed) {
-      double distance = platform.distanceTo(player);
+      final distance = platform.distanceTo(player);
       if (distance - playerDownSpeed <= 0) {
         return CollisionAndFallDistance(distance, platform);
       }
