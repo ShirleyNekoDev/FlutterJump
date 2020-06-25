@@ -9,7 +9,7 @@ import 'world.dart';
 import 'collisions.dart';
 
 class Player extends PositionComponent {
-  static final _color = Paint()..color = Color(0xFFFFAA00);
+  static final _color = Paint()..color = Color(0xFFFFB000);
   static const _size = 0.1; // 1/10th of the screen width
   static const _jumpSpeed = 200.0;
 
@@ -43,35 +43,42 @@ class Player extends PositionComponent {
   Rect toRect() => Rect.fromLTWH(
         _world.localX2Global(x - width / 2),
         _world.localY2Global(y + height),
-        _world.localX2Global(width),
+        _world.localWidth2Global(width),
         height,
       );
 
   @override
   void update(double deltaTime) {
     if (alive) {
-      move(deltaTime);
+      physicsMove(deltaTime);
       deathCheck();
     }
     super.update(deltaTime);
   }
 
-  void move(double deltaTime) {
+  void onHorizontalControl(double newX) {
+    if(alive) {
+      x = newX;
+    }
+  }
+
+  void physicsMove(double deltaTime) {
     ySpeed += deltaTime * _world.gravity;
     if (ySpeed < 0) {
-      var collision =
+      final collision =
           _world.calculatePlayerCollisionsAndFallDistance(deltaTime * -ySpeed);
       y -= collision.fallDistance;
       if (collision.hasCollision) {
-        jump();
+        collision.collidedPlatform.onPlayerCollided(this);
+        _world.startScreenshake();
       }
     } else {
       y += deltaTime * ySpeed;
     }
   }
 
-  void jump() {
-    ySpeed = _jumpSpeed;
+  void jump([double jumpMultiplier = 1]) {
+    ySpeed = jumpMultiplier * _jumpSpeed;
   }
 
   void deathCheck() {
