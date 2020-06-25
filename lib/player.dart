@@ -6,7 +6,7 @@ import 'package:flame/position.dart';
 
 import 'utils/debug.dart';
 import 'world.dart';
-import 'platform.dart';
+import 'collisions.dart';
 
 class Player extends PositionComponent {
   static final _color = Paint()..color = Color(0xFFFFAA00);
@@ -53,6 +53,7 @@ class Player extends PositionComponent {
       move(deltaTime);
       deathCheck();
     }
+    super.update(deltaTime);
   }
 
   void move(double deltaTime) {
@@ -61,7 +62,7 @@ class Player extends PositionComponent {
       var collision =
           _world.calculatePlayerCollisionsAndFallDistance(deltaTime * -ySpeed);
       y -= collision.fallDistance;
-      if (collision.hasCollision()) {
+      if (collision.hasCollision) {
         jump();
       }
     } else {

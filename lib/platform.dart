@@ -1,15 +1,15 @@
-import 'dart:collection';
 import 'dart:ui';
 
 import 'package:FlutterJump/utils/colors.dart';
 import 'package:flame/position.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'player.dart';
 import 'utils/debug.dart';
 import 'world.dart';
 
 extension WorldPlatforms on World {
-  void createPlatform(Position position, [PlatformPrototype prototype = null]) {
+  void createPlatform(Position position, [PlatformPrototype prototype]) {
     var proto = (prototype == null) ? PlatformPrototype.DEFAULT : prototype;
     var platform = PlatformInstance(proto, position);
     platforms.add(platform);
@@ -21,30 +21,6 @@ extension WorldPlatforms on World {
       instance.prototype.render(canvas, position, this.localX2Global);
     });
   }
-
-  CollisionAndFallDistance calculatePlayerCollisionsAndFallDistance(
-      double playerDownSpeed) {
-    var it = platforms.iterator;
-    while (it.moveNext()) {
-      var platform = it.current;
-      if(!platform.isHOverlapping(player)) continue;
-
-      double distance = platform.distanceTo(player);
-      if (distance - playerDownSpeed <= 0) {
-        return CollisionAndFallDistance(distance, platform);
-      }
-    }
-    return CollisionAndFallDistance(playerDownSpeed);
-  }
-}
-
-class CollisionAndFallDistance {
-  final PlatformInstance collidedPlatform;
-  final double fallDistance;
-
-  CollisionAndFallDistance(this.fallDistance, [this.collidedPlatform = null]);
-
-  bool hasCollision() => collidedPlatform != null;
 }
 
 class PlatformInstance {
